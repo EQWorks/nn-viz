@@ -54,6 +54,7 @@ export const Activations = {
 
 /** Build-in regularization functions */
 export const RegularizationFunction = {
+  none: null,
   L1: {
     output: Math.abs,
     der: (w) => w < 0 ? -1 : (w > 0 ? 1 : 0),

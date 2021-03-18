@@ -6,7 +6,7 @@ import {
   classifySpiralData,
   classifyCircleData,
   classifyXORData,
-} from '../src/dataset'
+} from '../src/lib/dataset'
 
 // TODO: expectation based on hardcoded 'nn-viz' random seed
 const numSamples = 2

@@ -2,7 +2,7 @@ import {
   Errors,
   Activations,
   RegularizationFunction,
-} from '../src/nn'
+} from '../src/lib/nn'
 
 
 describe('Errors', () => {
