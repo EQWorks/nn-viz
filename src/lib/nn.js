@@ -22,8 +22,10 @@ export interface RegularizationFunction {
 
 /** Built-in error functions */
 export const Errors = {
-  error: (output, target) => 0.5 * Math.pow(output - target, 2),
-  der: (output, target) => output - target,
+  SQUARE: {
+    error: (output, target) => 0.5 * Math.pow(output - target, 2),
+    der: (output, target) => output - target,
+  },
 }
 
 /** Built-in activation functions */

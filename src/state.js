@@ -1,6 +1,6 @@
 import create from 'zustand'
 
-// import { Activations, RegularizationFunction } from './lib/nn'
+import { Activations, RegularizationFunction } from './lib/nn'
 import {
   classifyCircleData,
   // classifySpiralData,
@@ -13,7 +13,14 @@ import {
 // TODO: handle hidden props
 // const HIDE_STATE_SUFFIX = '_hide'
 
+// emulated enum Problem
+export const Problem = {
+  CLASSIFICATION: 0,
+  REGRESSION: 1,
+}
+
 export const useStore = create((set) => ({
+  // TODO: random seed
   learningRate: 0.03,
   regularizationRate: 0,
   showTestData: false,
@@ -22,8 +29,8 @@ export const useStore = create((set) => ({
   discretize: false,
   tutorial: null,
   percTrainData: 50,
-  activation: nn.Activations.TANH,
-  regularization: null,
+  activation: Activations.TANH,
+  regularization: RegularizationFunction.none,
   problem: Problem.CLASSIFICATION,
   initZero: false,
   hideText: false,
@@ -31,15 +38,19 @@ export const useStore = create((set) => ({
   numHiddenLayers: 1,
   hiddenLayerControls: [],
   networkShape: [4, 2],
-  x: true,
-  y: true,
-  xTimesY: false,
-  xSquared: false,
-  ySquared: false,
-  cosX: false,
-  sinX: false,
-  cosY: false,
-  sinY: false,
+  // feature inputs
+  inputs: {
+    x: true,
+    y: true,
+    xTimesY: false,
+    xSquared: false,
+    ySquared: false,
+    cosX: false,
+    sinX: false,
+    cosY: false,
+    sinY: false,
+  },
+  setInputs: (k, v) => set((prev) => ({ inputs: { ...prev.inputs, [k]: v } })),
   dataset: classifyCircleData,
   regDataset: regressPlane,
 }))
