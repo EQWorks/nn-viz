@@ -1,6 +1,6 @@
 import create from 'zustand'
 
-import { Activations, RegularizationFunction } from './lib/nn'
+import { Activations, Regularizations } from './lib/nn'
 import {
   classifyCircleData,
   // classifySpiralData,
@@ -14,15 +14,17 @@ import {
 // const HIDE_STATE_SUFFIX = '_hide'
 
 // emulated enum Problem
-export const Problem = {
-  CLASSIFICATION: 0,
-  REGRESSION: 1,
+export const Problems = {
+  CLASSIFICATION: 'CLASSIFICATION',
+  REGRESSION: 'REGRESSION',
 }
 
 export const useStore = create((set) => ({
   // TODO: random seed
   learningRate: 0.03,
+  setLearningRate: (v) => set({ learningRate: parseFloat(v) }),
   regularizationRate: 0,
+  setRegularizationRate: (v) => set({ regularizationRate: parseFloat(v) }),
   showTestData: false,
   noise: 0,
   batchSize: 10,
@@ -30,8 +32,11 @@ export const useStore = create((set) => ({
   tutorial: null,
   percTrainData: 50,
   activation: Activations.TANH,
-  regularization: RegularizationFunction.none,
-  problem: Problem.CLASSIFICATION,
+  setActivation: (a) => set({ activation: Activations[a] || Activations.TANH }),
+  regularization: Regularizations.None,
+  setRegularization: (r) => set({ regularization: Regularizations[r] || Regularizations.None }),
+  problem: Problems.CLASSIFICATION,
+  setProblem: (p) => set({ problem: Problems[p] || Problems.CLASSIFICATION }),
   initZero: false,
   hideText: false,
   collectStats: false,

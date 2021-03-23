@@ -31,6 +31,7 @@ export const Errors = {
 /** Built-in activation functions */
 export const Activations = {
   TANH: {
+    label: 'TANH',
     output: Math.tanh,
     der: (x) => {
       const output = Activations.TANH.output(x)
@@ -38,10 +39,12 @@ export const Activations = {
     },
   },
   RELU: {
+    label: 'RELU',
     output: (x) => Math.max(0, x),
     der: (x) => x <= 0 ? 0 : 1,
   },
   SIGMOID: {
+    label: 'SIGMOID',
     output: (x) => 1 / (1 + Math.exp(-x)),
     der: (x) => {
       const output = Activations.SIGMOID.output(x)
@@ -49,19 +52,26 @@ export const Activations = {
     },
   },
   LINEAR: {
+    label: 'LINEAR',
     output: x => x,
     der: x => 1,
   },
 }
 
 /** Build-in regularization functions */
-export const RegularizationFunction = {
-  none: null,
+export const Regularizations = {
+  None: {
+    label: 'None',
+    output: () => {},
+    der: () => {},
+  },
   L1: {
+    label: 'L1',
     output: Math.abs,
     der: (w) => w < 0 ? -1 : (w > 0 ? 1 : 0),
   },
   L2: {
+    label: 'L2',
     output: (w) => 0.5 * w * w,
     der: (w) => w,
   },
@@ -336,7 +346,7 @@ export function updateWeights(network, learningRate, regularizationRate) {
           link.weight = link.weight - (learningRate / link.numAccumulatedDers) * link.accErrorDer;
           // Further update the weight based on regularization.
           const newLinkWeight = link.weight - (learningRate * regularizationRate) * regulDer;
-          if (link.regularization === RegularizationFunction.L1 && link.weight * newLinkWeight < 0) {
+          if (link.regularization === Regularizations.L1 && link.weight * newLinkWeight < 0) {
             // The weight crossed 0 due to the regularization term. Set it to 0.
             link.weight = 0;
             link.isDead = true;

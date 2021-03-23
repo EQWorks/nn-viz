@@ -1,8 +1,13 @@
 import { useEffect, useState } from 'react'
 
+import Container from '@material-ui/core/Container'
+import Grid from '@material-ui/core/Grid'
+
 import { shuffle } from './lib/dataset'
 import { Activations, buildNetwork, forwardProp, Errors } from './lib/nn'
-import { useStore, Problem } from './state'
+import { useStore, Problems } from './state'
+import Controls from './controls'
+
 
 const RECT_SIZE = 30
 const BIAS_SIZE = 5
@@ -55,8 +60,8 @@ function getLoss(network, dataPoints) {
 
 function generateData({ problem, dataset, regDataset, noise, percTrainData }) {
   // Math.seedrandom(state.seed);
-  const numSamples = (problem === Problem.REGRESSION) ? NUM_SAMPLES_REGRESS : NUM_SAMPLES_CLASSIFY
-  const generator = problem === Problem.CLASSIFICATION ? dataset : regDataset
+  const numSamples = (problem === Problems.REGRESSION) ? NUM_SAMPLES_REGRESS : NUM_SAMPLES_CLASSIFY
+  const generator = problem === Problems.CLASSIFICATION ? dataset : regDataset
   const data = generator(numSamples, noise / 100)
   // Shuffle the data in-place.
   shuffle(data)
@@ -80,16 +85,18 @@ function reset({ trainData, testData, networkShape, problem, activation, regular
   // Make a simple network.
   const numInputs = constructInput(0, 0).length;
   const shape = [numInputs].concat(networkShape).concat([1]);
-  const outputActivation = (problem === Problem.REGRESSION) ? Activations.LINEAR : Activations.TANH
+  const outputActivation = (problem === Problems.REGRESSION) ? Activations.LINEAR : Activations.TANH
   const network = buildNetwork(shape, activation, outputActivation, regularization, constructInputIds(), initZero)
   const lossTrain = getLoss(network, trainData)
   const lossTest = getLoss(network, testData)
   // drawNetwork(network);
   // updateUI(true);
   return { iter: 0, network, lossTrain, lossTest }
-};
+}
 
 const Playground = () => {
+  const [isPlaying, setIsPlaying] = useState(false)
+
   const [trainData, setTrainData] = useState([])
   const [testData, setTestData] = useState([])
 
@@ -100,13 +107,16 @@ const Playground = () => {
 
   // from global store
   const problem = useStore(state => state.problem)
+
   const dataset = useStore(state => state.dataset)
   const regDataset = useStore(state => state.regDataset)
   const noise = useStore(state => state.noise)
   const percTrainData = useStore(state => state.percTrainData)
-  const networkShape = useStore(state => state.networkShape)
+
   const activation = useStore(state => state.activation)
+
   const regularization = useStore(state => state.regularization)
+
   const initZero = useStore(state => state.initZero)
   const inputs = useStore(state => state.inputs)
   const setInputs = useStore(state => state.setInputs)
@@ -123,82 +133,12 @@ const Playground = () => {
   }, [problem, dataset, regDataset, noise, percTrainData, activation, regularization, initZero])
 
   return (
-    <>
+    <Container maxWidth='xl'>
       {/* controls */}
-      <div>
-        <div>
-          {/* timeline controls */}
-          <button>Reset</button>
-          <button>Play/Pause</button>
-          <button>Skip next</button>
-        </div>
-        <div>
-          {/* iter number */}
-        </div>
-        <div>
-          {/* learning rate */}
-          <label for="learningRate">Learning rate</label>
-          <select id="learningRate">
-            <option value="0.00001">0.00001</option>
-            <option value="0.0001">0.0001</option>
-            <option value="0.001">0.001</option>
-            <option value="0.003">0.003</option>
-            <option value="0.01">0.01</option>
-            <option value="0.03">0.03</option>
-            <option value="0.1">0.1</option>
-            <option value="0.3">0.3</option>
-            <option value="1">1</option>
-            <option value="3">3</option>
-            <option value="10">10</option>
-          </select>
-        </div>
-        <div>
-          {/* activation */}
-          <label for="activations">Activation</label>
-          <select id="activations">
-            <option value="relu">ReLU</option>
-            <option value="tanh">Tanh</option>
-            <option value="sigmoid">Sigmoid</option>
-            <option value="linear">Linear</option>
-          </select>
-        </div>
-        <div>
-          {/* regularization */}
-          <label for="regularizations">Regularization</label>
-          <select id="regularizations">
-            <option value="none">None</option>
-            <option value="L1">L1</option>
-            <option value="L2">L2</option>
-          </select>
-        </div>
-        <div>
-          {/* regularization rate */}
-          <label for="regularRate">Regularization rate</label>
-          <select id="regularRate">
-            <option value="0">0</option>
-            <option value="0.001">0.001</option>
-            <option value="0.003">0.003</option>
-            <option value="0.01">0.01</option>
-            <option value="0.03">0.03</option>
-            <option value="0.1">0.1</option>
-            <option value="0.3">0.3</option>
-            <option value="1">1</option>
-            <option value="3">3</option>
-            <option value="10">10</option>
-          </select>
-        </div>
-        <div>
-          {/* problem type */}
-          <label for="problem">Problem type</label>
-          <select id="problem">
-            <option value="classification">Classification</option>
-            <option value="regression">Regression</option>
-          </select>
-        </div>
-      </div>
+      <Controls isPlaying={isPlaying} iter={iter} />
       {/* visualization */}
-      <div id="main-part" class="l--page">
-        <div class="column data">
+      <Grid container spacing={2}>
+        <Grid item xs={2}>
           <h4>Data</h4>
           <div class="ui-dataset">
             <label for="data-type">Which dataset do you want to use?</label>
@@ -236,8 +176,8 @@ const Playground = () => {
                 Regenerate
               </button>
           </div>
-        </div>
-        <div class="column features">
+        </Grid>
+        <Grid item xs={2}>
           <h4>Features</h4>
           <p>Which properties do you want to feed in?</p>
           {Object.entries(INPUTS).map(([k, v]) => (
@@ -255,25 +195,26 @@ const Playground = () => {
               <label for={`input-${k}`}>{v.label}</label>
             </div>
           ))}
-        </div>
+        </Grid>
 
-        <div class="column hidden-layers">
+        <Grid item xs={5}>
           <h4>
-            <div class="ui-numHiddenLayers">
+            {/* <div class="ui-numHiddenLayers">
               <button id="add-layers" class="mdl-button mdl-js-button mdl-button--icon">
                 <i class="material-icons">add</i>
               </button>
               <button id="remove-layers" class="mdl-button mdl-js-button mdl-button--icon">
                 <i class="material-icons">remove</i>
               </button>
-            </div>
+            </div> */}
+            Hidden layers
             <span id="num-layers"></span>
             <span id="layers-label"></span>
           </h4>
           <div class="bracket"></div>
-        </div>
+        </Grid>
 
-        <div class="column output">
+        <Grid item xs={3}>
           <h4>Output</h4>
           <div>
             <div>
@@ -327,10 +268,10 @@ const Playground = () => {
               </label>
             </div>
           </div>
-        </div>
+        </Grid>
 
-      </div>
-    </>
+      </Grid>
+    </Container>
   )
 }
 

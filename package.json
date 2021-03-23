@@ -24,6 +24,7 @@
     "build-storybook": "build-storybook"
   },
   "dependencies": {
+    "@eqworks/lumen-ui": "^1.0.1",
     "@visx/shape": "^1.7.0",
     "d3-scale": "^3.2.3",
     "seedrandom": "^3.0.5",
@@ -35,6 +36,9 @@
     "@babel/plugin-proposal-class-properties": "^7.13.0",
     "@babel/preset-env": "^7.13.10",
     "@babel/preset-react": "^7.12.13",
+    "@material-ui/core": "^4.11.3",
+    "@material-ui/icons": "^4.11.2",
+    "@material-ui/lab": "^4.0.0-alpha.57",
     "@storybook/addon-actions": "^6.1.21",
     "@storybook/addon-essentials": "^6.1.21",
     "@storybook/addon-links": "^6.1.21",
@@ -47,6 +51,9 @@
     "react-dom": "^17.0.1"
   },
   "peerDependencies": {
+    "@material-ui/core": "^4.11.3",
+    "@material-ui/icons": "^4.11.2",
+    "@material-ui/lab": "^4.0.0-alpha.57",
     "core-js": "^3.9.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1"

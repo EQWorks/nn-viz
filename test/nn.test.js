@@ -1,7 +1,7 @@
 import {
   Errors,
   Activations,
-  RegularizationFunction,
+  Regularizations,
 } from '../src/lib/nn'
 
 
@@ -11,13 +11,13 @@ describe('Errors', () => {
     [5, 1],
   ]
   test('.error(output, target)', () => {
-    expect(Errors.error(...inputs[0])).toBe(0.5)
-    expect(Errors.error(...inputs[1])).toBe(8)
+    expect(Errors.SQUARE.error(...inputs[0])).toBe(0.5)
+    expect(Errors.SQUARE.error(...inputs[1])).toBe(8)
   })
 
   test('.der(output, target)', () => {
-    expect(Errors.der(...inputs[0])).toBe(inputs[0][0] - inputs[0][1])
-    expect(Errors.der(...inputs[1])).toBe(inputs[1][0] - inputs[1][1])
+    expect(Errors.SQUARE.der(...inputs[0])).toBe(inputs[0][0] - inputs[0][1])
+    expect(Errors.SQUARE.der(...inputs[1])).toBe(inputs[1][0] - inputs[1][1])
   })
 })
 
