@@ -1,14 +1,37 @@
 import { useEffect, useState } from 'react'
 
+import { makeStyles } from '@material-ui/core/styles'
 import Container from '@material-ui/core/Container'
 import Grid from '@material-ui/core/Grid'
+import Slider from '@material-ui/core/Slider'
+import IconButton from '@material-ui/core/IconButton'
+import PlayCircleOutlineIcon from '@material-ui/icons/PlayCircleOutline'
+import PauseCircleOutlineIcon from '@material-ui/icons/PauseCircleOutline'
+import RotateLeftIcon from '@material-ui/icons/RotateLeft'
+import SkipNextIcon from '@material-ui/icons/SkipNext'
+import ButtonGroup from '@material-ui/core/ButtonGroup'
+import FormControl from '@material-ui/core/FormControl'
+import Select from '@material-ui/core/Select'
+import InputLabel from '@material-ui/core/InputLabel'
+import MenuItem from '@material-ui/core/MenuItem'
+import TextField from '@material-ui/core/TextField'
+import Typography from '@material-ui/core/Typography'
 
 import { shuffle } from './lib/dataset'
 import { Activations, buildNetwork, forwardProp, Errors } from './lib/nn'
-import { useStore, Problems } from './state'
+import { useStore, Problems, Datasets, RegDatasets } from './state'
 import Controls from './controls'
+import DataConfig from './data-config'
 
 
+const useStyles = makeStyles((theme) => ({
+  controls: {
+    minWidth: 120,
+    margin: theme.spacing(1),
+  },
+}))
+
+// TODO: make configurable
 const RECT_SIZE = 30
 const BIAS_SIZE = 5
 const NUM_SAMPLES_CLASSIFY = 500
@@ -61,7 +84,9 @@ function getLoss(network, dataPoints) {
 function generateData({ problem, dataset, regDataset, noise, percTrainData }) {
   // Math.seedrandom(state.seed);
   const numSamples = (problem === Problems.REGRESSION) ? NUM_SAMPLES_REGRESS : NUM_SAMPLES_CLASSIFY
-  const generator = problem === Problems.CLASSIFICATION ? dataset : regDataset
+  const generator = problem === Problems.CLASSIFICATION
+    ? (Datasets[dataset] || Datasets.circle)
+    : RegDatasets[regDataset] || RegDatasets.plane
   const data = generator(numSamples, noise / 100)
   // Shuffle the data in-place.
   shuffle(data)
@@ -95,6 +120,8 @@ function reset({ trainData, testData, networkShape, problem, activation, regular
 }
 
 const Playground = () => {
+  const classes = useStyles()
+
   const [isPlaying, setIsPlaying] = useState(false)
 
   const [trainData, setTrainData] = useState([])
@@ -107,11 +134,17 @@ const Playground = () => {
 
   // from global store
   const problem = useStore(state => state.problem)
-
   const dataset = useStore(state => state.dataset)
   const regDataset = useStore(state => state.regDataset)
+
   const noise = useStore(state => state.noise)
+  const setNoise = useStore(state => state.setNoise)
+
   const percTrainData = useStore(state => state.percTrainData)
+  const setPercTrainData = useStore(state => state.setPercTrainData)
+
+  const batchSize = useStore(state => state.batchSize)
+  const setBatchSize = useStore(state => state.setBatchSize)
 
   const activation = useStore(state => state.activation)
 
@@ -140,42 +173,7 @@ const Playground = () => {
       <Grid container spacing={2}>
         <Grid item xs={2}>
           <h4>Data</h4>
-          <div class="ui-dataset">
-            <label for="data-type">Which dataset do you want to use?</label>
-            <select id="data-type">
-              {/* conditional depending on problem type */}
-              <option value="circle">circle</option>
-              <option value="xor">xor</option>
-              <option value="gauss">gauss</option>
-              <option value="spiral">spiral</option>
-              {/* only shown when problem type is regression */}
-              <option value="reg-plane">reg-plane</option>
-              <option value="reg-gauss">reg-gauss</option>
-            </select>
-          </div>
-          <div>
-            <div class="ui-percTrainData">
-              <label for="percTrainData">Ratio of training to test data:&nbsp;&nbsp;<span class="value">XX</span>%</label>
-              <p class="slider">
-                <input class="mdl-slider mdl-js-slider" type="range" id="percTrainData" min="10" max="90" step="10" />
-              </p>
-            </div>
-            <div class="ui-noise">
-              <label for="noise">Noise:&nbsp;&nbsp;<span class="value">XX</span></label>
-              <p class="slider">
-                <input class="mdl-slider mdl-js-slider" type="range" id="noise" min="0" max="50" step="5" />
-              </p>
-            </div>
-            <div class="ui-batchSize">
-              <label for="batchSize">Batch size:&nbsp;&nbsp;<span class="value">XX</span></label>
-              <p class="slider">
-                <input class="mdl-slider mdl-js-slider" type="range" id="batchSize" min="1" max="30" step="1" />
-              </p>
-            </div>
-              <button class="basic-button" id="data-regen-button" title="Regenerate data">
-                Regenerate
-              </button>
-          </div>
+          <DataConfig />
         </Grid>
         <Grid item xs={2}>
           <h4>Features</h4>

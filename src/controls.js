@@ -1,3 +1,4 @@
+import { makeStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
 import IconButton from '@material-ui/core/IconButton'
 import PlayCircleOutlineIcon from '@material-ui/icons/PlayCircleOutline'
@@ -10,10 +11,9 @@ import Select from '@material-ui/core/Select'
 import InputLabel from '@material-ui/core/InputLabel'
 import MenuItem from '@material-ui/core/MenuItem'
 import TextField from '@material-ui/core/TextField'
-import { makeStyles } from '@material-ui/core/styles'
 
 import { Activations, Regularizations } from './lib/nn'
-import { useStore, Problems } from './state'
+import { useStore, Problems, Datasets, RegDatasets } from './state'
 
 
 const useStyles = makeStyles((theme) => ({
@@ -42,6 +42,12 @@ const Controls = ({ isPlaying, iter }) => {
 
   const regularizationRate = useStore(state => state.regularizationRate)
   const setRegularizationRate = useStore(state => state.setRegularizationRate)
+
+  const dataset = useStore(state => state.dataset)
+  const setDataset = useStore(state => state.setDataset)
+
+  const regDataset = useStore(state => state.regDataset)
+  const setRegDataset = useStore(state => state.setRegDataset)
 
   return (
     <Grid container spacing={2}>
@@ -85,6 +91,20 @@ const Controls = ({ isPlaying, iter }) => {
           >
             {Object.values(Problems).map((p) => (
               <MenuItem key={p} value={p}>{p}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        {/* dataset */}
+        <FormControl size='small' variant='outlined' className={classes.controls}>
+          <InputLabel id="dataset-label">Dataset</InputLabel>
+          <Select
+            labelId='data-type-label'
+            value={problem === Problems.REGRESSION ? regDataset : dataset}
+            onChange={({ target: { value } }) => problem === Problems.REGRESSION ? setRegDataset(value) : setDataset(value)}
+            label='Dataset'
+          >
+            {Object.keys(problem === Problems.REGRESSION ? RegDatasets : Datasets).map((d) => (
+              <MenuItem key={d} value={d}>{d.toUpperCase()}</MenuItem>
             ))}
           </Select>
         </FormControl>

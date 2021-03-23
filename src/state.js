@@ -3,11 +3,11 @@ import create from 'zustand'
 import { Activations, Regularizations } from './lib/nn'
 import {
   classifyCircleData,
-  // classifySpiralData,
-  // classifyTwoGaussData,
-  // classifyXORData,
+  classifySpiralData,
+  classifyTwoGaussData,
+  classifyXORData,
   regressPlane,
-  // regressGaussian,
+  regressGaussian,
 } from './lib/dataset'
 
 // TODO: handle hidden props
@@ -19,6 +19,20 @@ export const Problems = {
   REGRESSION: 'REGRESSION',
 }
 
+/** A map between dataset names and functions that generate classification data. */
+export const Datasets = {
+  circle: classifyCircleData,
+  xor: classifyXORData,
+  gauss: classifyTwoGaussData,
+  spiral: classifySpiralData,
+}
+
+/** A map between dataset names and functions that generate regression data. */
+export const RegDatasets = {
+  plane: regressPlane,
+  gauss: regressGaussian,
+}
+
 export const useStore = create((set) => ({
   // TODO: random seed
   learningRate: 0.03,
@@ -27,10 +41,13 @@ export const useStore = create((set) => ({
   setRegularizationRate: (v) => set({ regularizationRate: parseFloat(v) }),
   showTestData: false,
   noise: 0,
+  setNoise: (v) => set({ noise: parseInt(v, 10) }),
   batchSize: 10,
+  setBatchSize: (v) => set({ batchSize: parseInt(v, 10) }),
   discretize: false,
   tutorial: null,
   percTrainData: 50,
+  setPercTrainData: (v) => set({ percTrainData: parseInt(v, 10) }),
   activation: Activations.TANH,
   setActivation: (a) => set({ activation: Activations[a] || Activations.TANH }),
   regularization: Regularizations.None,
@@ -56,6 +73,8 @@ export const useStore = create((set) => ({
     sinY: false,
   },
   setInputs: (k, v) => set((prev) => ({ inputs: { ...prev.inputs, [k]: v } })),
-  dataset: classifyCircleData,
-  regDataset: regressPlane,
+  dataset: 'circle',
+  setDataset: (dataset) => set({ dataset }),
+  regDataset: 'plane',
+  setRegDataset: (regDataset) => set({ regDataset }),
 }))
