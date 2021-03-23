@@ -1,37 +1,17 @@
 import create from 'zustand'
+import cloneDeep from 'lodash.clonedeep'
 
-import { Activations, Regularizations } from './lib/nn'
+import { forwardProp, backProp, updateWeights, Errors } from './lib/nn'
 import {
-  classifyCircleData,
-  classifySpiralData,
-  classifyTwoGaussData,
-  classifyXORData,
-  regressPlane,
-  regressGaussian,
-} from './lib/dataset'
+  Problems,
+  constructInput,
+  getLoss,
+  generateData,
+  reset,
+ } from './utils'
 
 // TODO: handle hidden props
 // const HIDE_STATE_SUFFIX = '_hide'
-
-// emulated enum Problem
-export const Problems = {
-  CLASSIFICATION: 'CLASSIFICATION',
-  REGRESSION: 'REGRESSION',
-}
-
-/** A map between dataset names and functions that generate classification data. */
-export const Datasets = {
-  circle: classifyCircleData,
-  xor: classifyXORData,
-  gauss: classifyTwoGaussData,
-  spiral: classifySpiralData,
-}
-
-/** A map between dataset names and functions that generate regression data. */
-export const RegDatasets = {
-  plane: regressPlane,
-  gauss: regressGaussian,
-}
 
 export const useStore = create((set) => ({
   // TODO: random seed
@@ -48,10 +28,10 @@ export const useStore = create((set) => ({
   tutorial: null,
   percTrainData: 50,
   setPercTrainData: (v) => set({ percTrainData: parseInt(v, 10) }),
-  activation: Activations.TANH,
-  setActivation: (a) => set({ activation: Activations[a] || Activations.TANH }),
-  regularization: Regularizations.None,
-  setRegularization: (r) => set({ regularization: Regularizations[r] || Regularizations.None }),
+  activation: 'TANH',
+  setActivation: (activation) => set({ activation }),
+  regularization: 'None',
+  setRegularization: (regularization) => set({ regularization }),
   problem: Problems.CLASSIFICATION,
   setProblem: (p) => set({ problem: Problems[p] || Problems.CLASSIFICATION }),
   initZero: false,
@@ -77,4 +57,43 @@ export const useStore = create((set) => ({
   setDataset: (dataset) => set({ dataset }),
   regDataset: 'plane',
   setRegDataset: (regDataset) => set({ regDataset }),
+  // playground
+  isPlaying: false,
+  togglePlaying: () => set((prev) => ({ isPlaying: !prev.isPlaying })),
+  trainData: [],
+  testData: [],
+  iter: 0,
+  network: [],
+  lossTrain: 0,
+  lossTest: 0,
+  oneStep: () => set((prev) => {
+    const network = cloneDeep(prev.network)
+    prev.trainData.forEach((point, i) => {
+      const input = constructInput(prev.inputs, point.x, point.y)
+      forwardProp(network, input)
+      backProp(network, point.label, Errors.SQUARE)
+      if ((i + 1) % prev.batchSize === 0) {
+        updateWeights(network, prev.learningRate, prev.regularizationRate)
+      }
+    })
+    return {
+      iter: prev.iter + 1,
+      network,
+      lossTrain: getLoss(prev.inputs, network, prev.trainData),
+      lossTest: getLoss(prev.inputs, network, prev.testData),
+    }
+  }),
+  resetNetwork: () => set(({ problem, dataset, regDataset, noise, percTrainData, inputs, activation, regularization, initZero }) => {
+    const { trainData, testData } = generateData({ problem, dataset, regDataset, noise, percTrainData })
+    const { iter, network, lossTrain, lossTest } = reset({ inputs, trainData, testData, problem, activation, regularization, initZero })
+    return {
+      trainData,
+      testData,
+      isPlaying: false,
+      iter,
+      network,
+      lossTrain,
+      lossTest,
+    }
+  }),
 }))

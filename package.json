@@ -27,6 +27,7 @@
     "@eqworks/lumen-ui": "^1.0.1",
     "@visx/shape": "^1.7.0",
     "d3-scale": "^3.2.3",
+    "lodash.clonedeep": "^4.5.0",
     "seedrandom": "^3.0.5",
     "zustand": "^3.3.3"
   },

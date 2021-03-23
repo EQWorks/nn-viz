@@ -13,7 +13,8 @@ import MenuItem from '@material-ui/core/MenuItem'
 import TextField from '@material-ui/core/TextField'
 
 import { Activations, Regularizations } from './lib/nn'
-import { useStore, Problems, Datasets, RegDatasets } from './state'
+import { Problems, Datasets, RegDatasets } from './utils'
+import { useStore } from './state'
 
 
 const useStyles = makeStyles((theme) => ({
@@ -24,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }))
 
-const Controls = ({ isPlaying, iter }) => {
+const Controls = ({ isPlaying, iter, togglePlaying, oneStep, resetNetwork }) => {
   const classes = useStyles()
 
   // from global store
@@ -57,7 +58,7 @@ const Controls = ({ isPlaying, iter }) => {
           <InputLabel id="activations-label">Activation</InputLabel>
           <Select
             labelId='activations-label'
-            value={activation.label}
+            value={activation}
             onChange={({ target: { value } }) => setActivation(value)}
             label='Activation'
           >
@@ -71,7 +72,7 @@ const Controls = ({ isPlaying, iter }) => {
           <InputLabel id='regularizations-label'>Regularization</InputLabel>
           <Select
             labelId="regularizations-label"
-            value={regularization.label}
+            value={regularization}
             onChange={({ target: { value } }) => setRegularization(value)}
             label='Regularization'
           >
@@ -154,14 +155,16 @@ const Controls = ({ isPlaying, iter }) => {
           </Select>
         </FormControl>
         {/* timeline controls */}
-        <ButtonGroup size='small'>
-          <IconButton aria-label='Reset'>
+        <ButtonGroup size='small' color='primary'>
+          <IconButton aria-label='Reset' onClick={() => { resetNetwork() }}>
             <RotateLeftIcon />
           </IconButton>
-          <IconButton aria-label={isPlaying ? 'Pause' : 'Play'}>
+          <IconButton aria-label={isPlaying ? 'Pause' : 'Play'} onClick={() => { togglePlaying() }}>
             {isPlaying ? (<PauseCircleOutlineIcon />) : (<PlayCircleOutlineIcon />)}
           </IconButton>
-          <IconButton aria-label='Skip next'>
+          <IconButton aria-label='Skip next' onClick={() => {
+            oneStep()
+          }}>
             <SkipNextIcon />
           </IconButton>
         </ButtonGroup>

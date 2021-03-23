@@ -188,7 +188,8 @@ export class Link {
  * @returns Node[][]
  */
 export function buildNetwork(
-  networkShape, activation,
+  networkShape,
+  activation,
   outputActivation,
   regularization,
   inputIds,

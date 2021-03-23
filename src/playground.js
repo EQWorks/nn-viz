@@ -3,23 +3,9 @@ import { useEffect, useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Container from '@material-ui/core/Container'
 import Grid from '@material-ui/core/Grid'
-import Slider from '@material-ui/core/Slider'
-import IconButton from '@material-ui/core/IconButton'
-import PlayCircleOutlineIcon from '@material-ui/icons/PlayCircleOutline'
-import PauseCircleOutlineIcon from '@material-ui/icons/PauseCircleOutline'
-import RotateLeftIcon from '@material-ui/icons/RotateLeft'
-import SkipNextIcon from '@material-ui/icons/SkipNext'
-import ButtonGroup from '@material-ui/core/ButtonGroup'
-import FormControl from '@material-ui/core/FormControl'
-import Select from '@material-ui/core/Select'
-import InputLabel from '@material-ui/core/InputLabel'
-import MenuItem from '@material-ui/core/MenuItem'
-import TextField from '@material-ui/core/TextField'
-import Typography from '@material-ui/core/Typography'
 
-import { shuffle } from './lib/dataset'
-import { Activations, buildNetwork, forwardProp, Errors } from './lib/nn'
-import { useStore, Problems, Datasets, RegDatasets } from './state'
+import { useStore } from './state'
+import { INPUTS } from './utils'
 import Controls from './controls'
 import DataConfig from './data-config'
 
@@ -31,106 +17,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }))
 
-// TODO: make configurable
-const RECT_SIZE = 30
-const BIAS_SIZE = 5
-const NUM_SAMPLES_CLASSIFY = 500
-const NUM_SAMPLES_REGRESS = 1200
-const DENSITY = 100
-
-const INPUTS = {
-  x: { f: (x) => x, label: 'X_1' },
-  y: { f: (_, y) => y, label: 'X_2' },
-  xSquared: { f: (x) => x * x, label: 'X_1^2' },
-  ySquared: { f: (_, y) => y * y,  label: 'X_2^2' },
-  xTimesY: { f: (x, y) => x * y, label: 'X_1X_2' },
-  sinX: { f: (x) => Math.sin(x), label: 'sin(X_1)' },
-  sinY: { f: (_, y) => Math.sin(y), label: 'sin(X_2)' },
-}
-
-function constructInput(x, y) {
-  const inputs = useStore.getState().inputs
-  const input = []
-  for (const inputName in INPUTS) {
-    if (inputs[inputName]) {
-      input.push(INPUTS[inputName].f(x, y))
-    }
-  }
-  return input
-}
-
-function constructInputIds() {
-  const inputs = useStore.getState().inputs
-  const result = []
-  for (const inputName in INPUTS) {
-    if (inputs[inputName]) {
-      result.push(inputName)
-    }
-  }
-  return result
-}
-
-function getLoss(network, dataPoints) {
-  let loss = 0
-  for (let i = 0; i < dataPoints.length; i++) {
-    const dataPoint = dataPoints[i]
-    const input = constructInput(dataPoint.x, dataPoint.y)
-    const output = forwardProp(network, input)
-    loss += Errors.SQUARE.error(output, dataPoint.label)
-  }
-  return loss / dataPoints.length;
-}
-
-function generateData({ problem, dataset, regDataset, noise, percTrainData }) {
-  // Math.seedrandom(state.seed);
-  const numSamples = (problem === Problems.REGRESSION) ? NUM_SAMPLES_REGRESS : NUM_SAMPLES_CLASSIFY
-  const generator = problem === Problems.CLASSIFICATION
-    ? (Datasets[dataset] || Datasets.circle)
-    : RegDatasets[regDataset] || RegDatasets.plane
-  const data = generator(numSamples, noise / 100)
-  // Shuffle the data in-place.
-  shuffle(data)
-  // Split into train and test data.
-  const splitIndex = Math.floor(data.length * percTrainData / 100)
-  const trainData = data.slice(0, splitIndex)
-  const testData = data.slice(splitIndex)
-  return { trainData, testData }
-  // heatMap.updatePoints(trainData)
-  // heatMap.updateTestPoints(state.showTestData ? testData : [])
-}
-
-function reset({ trainData, testData, networkShape, problem, activation, regularization, initZero }) {
-  // lineChart.reset();
-  // player.pause();
-
-  // let suffix = state.numHiddenLayers !== 1 ? "s" : "";
-  // d3.select("#layers-label").text("Hidden layer" + suffix);
-  // d3.select("#num-layers").text(state.numHiddenLayers);
-
-  // Make a simple network.
-  const numInputs = constructInput(0, 0).length;
-  const shape = [numInputs].concat(networkShape).concat([1]);
-  const outputActivation = (problem === Problems.REGRESSION) ? Activations.LINEAR : Activations.TANH
-  const network = buildNetwork(shape, activation, outputActivation, regularization, constructInputIds(), initZero)
-  const lossTrain = getLoss(network, trainData)
-  const lossTest = getLoss(network, testData)
-  // drawNetwork(network);
-  // updateUI(true);
-  return { iter: 0, network, lossTrain, lossTest }
-}
-
 const Playground = () => {
   const classes = useStyles()
-
-  const [isPlaying, setIsPlaying] = useState(false)
-
-  const [trainData, setTrainData] = useState([])
-  const [testData, setTestData] = useState([])
-
-  const [iter, setIter] = useState(0)
-  const [network, setNetwork] = useState([])
-  const [lossTrain, setLossTrain] = useState(0)
-  const [lossTest, setLossTest] = useState(0)
 
   // from global store
   const problem = useStore(state => state.problem)
@@ -150,38 +38,57 @@ const Playground = () => {
 
   const regularization = useStore(state => state.regularization)
 
+  const learningRate = useStore(state => state.learningRate)
+  const regularizationRate = useStore(state => state.regularizationRate)
+
   const initZero = useStore(state => state.initZero)
   const inputs = useStore(state => state.inputs)
   const setInputs = useStore(state => state.setInputs)
 
+  const isPlaying = useStore(state => state.isPlaying)
+  const togglePlaying = useStore(state => state.togglePlaying)
+  const trainData = useStore(state => state.trainData)
+  const testData = useStore(state => state.testData)
+  const iter = useStore(state => state.iter)
+  const network = useStore(state => state.network)
+  const lossTrain = useStore(state => state.lossTrain)
+  const lossTest = useStore(state => state.lossTest)
+  const oneStep = useStore(state => state.oneStep)
+  const resetNetwork = useStore(state => state.resetNetwork)
+
+  // TODO: use zustand reactive mechanism (subscribe)
   useEffect(() => {
-    const { trainData, testData } = generateData({ problem, dataset, regDataset, noise, percTrainData })
-    setTrainData(trainData)
-    setTestData(testData)
-    const { iter, network, lossTrain, lossTest } = reset({ trainData, testData, problem, activation, regularization, initZero })
-    setIter(iter)
-    setNetwork(network)
-    setLossTrain(lossTrain)
-    setLossTest(lossTest)
-  }, [problem, dataset, regDataset, noise, percTrainData, activation, regularization, initZero])
+    resetNetwork()
+  }, [inputs, problem, dataset, regDataset, noise, percTrainData, activation, regularization, initZero])
+
+  useEffect(() => {
+    let t
+    if (!t) {
+      t = setInterval(() => {
+        if (isPlaying) {
+          oneStep()
+        }
+      }, 100)
+    }
+    return () => clearInterval(t)
+  }, [isPlaying])
 
   return (
     <Container maxWidth='xl'>
       {/* controls */}
-      <Controls isPlaying={isPlaying} iter={iter} />
+      <Controls isPlaying={isPlaying} iter={iter} togglePlaying={togglePlaying} oneStep={oneStep} resetNetwork={resetNetwork} />
       {/* visualization */}
       <Grid container spacing={2}>
         <Grid item xs={2}>
-          <h4>Data</h4>
+          <h4>Data configuration</h4>
           <DataConfig />
         </Grid>
         <Grid item xs={2}>
           <h4>Features</h4>
-          <p>Which properties do you want to feed in?</p>
           {Object.entries(INPUTS).map(([k, v]) => (
             <div>
               <input
-                type="checkbox"
+                type='checkbox'
                 id={`input-${k}`}
                 name={`input-${k}`}
                 key={k}
@@ -228,12 +135,8 @@ const Playground = () => {
           <div id="heatmap"></div>
           <div>
             <div>
-              <span>Test Data: </span>
-              <pre>{JSON.stringify(testData, null, 2)}</pre>
-            </div>
-            <div>
-              <span>Training Data: </span>
-              <pre>{JSON.stringify(trainData, null, 2)}</pre>
+              <span>Network</span>
+              <pre>{JSON.stringify((network[network.length - 1] || [])[0], null, 2)}</pre>
             </div>
           </div>
           <div >
@@ -267,8 +170,17 @@ const Playground = () => {
             </div>
           </div>
         </Grid>
-
       </Grid>
+      <div>
+        <div>
+          <span>Test Data: </span>
+          <pre>{JSON.stringify(testData, null, 2)}</pre>
+        </div>
+        <div>
+          <span>Training Data: </span>
+          <pre>{JSON.stringify(trainData, null, 2)}</pre>
+        </div>
+      </div>
     </Container>
   )
 }
