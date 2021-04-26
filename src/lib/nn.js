@@ -187,46 +187,39 @@ export class Link {
  *
  * @returns Node[][]
  */
-export function buildNetwork(
-  networkShape,
-  activation,
-  outputActivation,
-  regularization,
-  inputIds,
-  initZero = false,
-) {
-  const numLayers = networkShape.length
-  let id = 1
+export function buildNetwork(networkShape, activation, outputActivation, regularization, inputIds, initZero) {
+  var numLayers = networkShape.length;
+  var id = 1;
   /** List of layers, with each layer being a list of nodes. */
-  const network = [] // shape Node[][]
-
-  for (let layerIdx = 0; layerIdx < numLayers; layerIdx++) {
-    const isOutputLayer = layerIdx === numLayers - 1
-    const isInputLayer = layerIdx === 0
-    const currentLayer = [] // shape Node[]
-    network.push(currentLayer)
-    const numNodes = networkShape[layerIdx]
-    for (let i = 0; i < numNodes; i++) {
-      let nodeId = id.toString()
+  var network = [];
+  for (var layerIdx = 0; layerIdx < numLayers; layerIdx++) {
+    var isOutputLayer = layerIdx === numLayers - 1;
+    var isInputLayer = layerIdx === 0;
+    var currentLayer = [];
+    network.push(currentLayer);
+    var numNodes = networkShape[layerIdx];
+    for (var i = 0; i < numNodes; i++) {
+      var nodeId = id.toString();
       if (isInputLayer) {
-        nodeId = inputIds[i]
-      } else {
-        id++
+        nodeId = inputIds[i];
       }
-      const node = new Node(nodeId, isOutputLayer ? outputActivation : activation, initZero)
-      currentLayer.push(node)
+      else {
+        id++;
+      }
+      var node = new Node(nodeId, isOutputLayer ? outputActivation : activation, initZero);
+      currentLayer.push(node);
       if (layerIdx >= 1) {
         // Add links from nodes in the previous layer to this node.
-        for (let j = 0; j < network[layerIdx - 1].length; j++) {
-          const prevNode = network[layerIdx - 1][j]
-          const link = new Link(prevNode, node, regularization, initZero)
-          prevNode.outputs.push(link)
-          node.inputLinks.push(link)
+        for (var j = 0; j < network[layerIdx - 1].length; j++) {
+          var prevNode = network[layerIdx - 1][j];
+          var link = new Link(prevNode, node, regularization, initZero);
+          prevNode.outputs.push(link);
+          node.inputLinks.push(link);
         }
       }
     }
   }
-  return network
+  return network;
 }
 
 /**

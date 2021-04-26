@@ -133,12 +133,6 @@ const Playground = () => {
             <div id="linechart"></div>
           </div>
           <div id="heatmap"></div>
-          <div>
-            <div>
-              <span>Network</span>
-              <pre>{JSON.stringify((network[network.length - 1] || [])[0], null, 2)}</pre>
-            </div>
-          </div>
           <div >
             <div>
               <div class="label">

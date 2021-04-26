@@ -66,26 +66,26 @@ export const useStore = create((set) => ({
   network: [],
   lossTrain: 0,
   lossTest: 0,
-  oneStep: () => set((prev) => {
-    const network = cloneDeep(prev.network)
-    prev.trainData.forEach((point, i) => {
-      const input = constructInput(prev.inputs, point.x, point.y)
+  oneStep: () => set((state) => {
+    const network = cloneDeep(state.network)
+    state.trainData.forEach((point, i) => {
+      const input = constructInput(state.inputs, point.x, point.y)
       forwardProp(network, input)
       backProp(network, point.label, Errors.SQUARE)
-      if ((i + 1) % prev.batchSize === 0) {
-        updateWeights(network, prev.learningRate, prev.regularizationRate)
+      if ((i + 1) % state.batchSize === 0) {
+        updateWeights(network, state.learningRate, state.regularizationRate)
       }
     })
     return {
-      iter: prev.iter + 1,
+      iter: state.iter + 1,
       network,
-      lossTrain: getLoss(prev.inputs, network, prev.trainData),
-      lossTest: getLoss(prev.inputs, network, prev.testData),
+      lossTrain: getLoss(state.inputs, network, state.trainData),
+      lossTest: getLoss(state.inputs, network, state.testData),
     }
   }),
-  resetNetwork: () => set(({ problem, dataset, regDataset, noise, percTrainData, inputs, activation, regularization, initZero }) => {
-    const { trainData, testData } = generateData({ problem, dataset, regDataset, noise, percTrainData })
-    const { iter, network, lossTrain, lossTest } = reset({ inputs, trainData, testData, problem, activation, regularization, initZero })
+  resetNetwork: () => set((state) => {
+    const { trainData, testData } = generateData(state)
+    const { iter, network, lossTrain, lossTest } = reset({ ...state, trainData, testData })
     return {
       trainData,
       testData,
