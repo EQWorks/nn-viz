@@ -60,19 +60,15 @@ export const Activations = {
 
 /** Build-in regularization functions */
 export const Regularizations = {
-  None: {
-    label: 'None',
-    output: (v) => v,
-    der: (v) => v,
-  },
+  None: { label: 'None' },
   L1: {
     label: 'L1',
-    output: Math.abs,
+    // output: Math.abs,
     der: (w) => w < 0 ? -1 : (w > 0 ? 1 : 0),
   },
   L2: {
     label: 'L2',
-    output: (w) => 0.5 * w * w,
+    // output: (w) => 0.5 * w * w,
     der: (w) => w,
   },
 }
@@ -334,14 +330,19 @@ export function updateWeights(network, learningRate, regularizationRate) {
         if (link.isDead) {
           continue;
         }
-        const regulDer = link.regularization ? link.regularization.der(link.weight) : 0;
+        const regulDer = (Object.keys(link.regularization) && link.regularization.label !== 'None')
+          ? link.regularization.der(link.weight)
+          : 0;
         if (link.numAccumulatedDers > 0) {
           // Update the weight based on dE/dw.
           link.weight = link.weight - (learningRate / link.numAccumulatedDers) * link.accErrorDer;
           // Further update the weight based on regularization.
           const newLinkWeight = link.weight - (learningRate * regularizationRate) * regulDer;
-          if (link.regularization === Regularizations.L1 && link.weight * newLinkWeight < 0) {
-            // The weight crossed 0 due to the regularization term. Set it to 0.
+          // The weight crossed 0 due to the regularization term. Set it to 0.
+          if (Object.keys(link.regularization)
+            && link.regularization.label === Regularizations.L1.label
+            && link.weight * newLinkWeight < 0
+          ) {
             link.weight = 0;
             link.isDead = true;
           } else {

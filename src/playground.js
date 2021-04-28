@@ -59,7 +59,7 @@ const Playground = () => {
   // TODO: use zustand reactive mechanism (subscribe)
   useEffect(() => {
     resetNetwork()
-  }, [inputs, problem, dataset, regDataset, noise, percTrainData, activation, regularization, initZero])
+  }, [inputs, problem, dataset, regDataset, noise, percTrainData, activation, regularization, regularizationRate, initZero])
 
   useEffect(() => {
     let t
