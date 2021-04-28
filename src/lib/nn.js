@@ -62,8 +62,8 @@ export const Activations = {
 export const Regularizations = {
   None: {
     label: 'None',
-    output: () => {},
-    der: () => {},
+    output: (v) => v,
+    der: (v) => v,
   },
   L1: {
     label: 'L1',
