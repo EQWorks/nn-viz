@@ -54,6 +54,22 @@ export const useStore = create((set) => ({
     networkShape.pop()
     return { networkShape }
   }),
+  addNeuron: (layer) => set((prev) => {
+    if (!prev.networkShape[layer] || prev.networkShape[layer] >= 8) {
+      return
+    }
+    const networkShape = [...prev.networkShape]
+    networkShape[layer] += 1
+    return { networkShape }
+  }),
+  removeNeuron: (layer) => set((prev) => {
+    if (!prev.networkShape[layer] || prev.networkShape[layer] <= 1) {
+      return
+    }
+    const networkShape = [...prev.networkShape]
+    networkShape[layer] -= 1
+    return { networkShape }
+  }),
   // feature inputs
   inputs: {
     x: true,

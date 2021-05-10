@@ -60,14 +60,16 @@ const Playground = () => {
   const oneStep = useStore(state => state.oneStep)
   const resetNetwork = useStore(state => state.resetNetwork)
 
-  const numHiddenLayers = useStore(state => state.networkShape.length)
+  const networkShape = useStore(state => state.networkShape)
   const addHiddenLayer = useStore(state => state.addHiddenLayer)
   const removeHiddenLayer = useStore(state => state.removeHiddenLayer)
+  const addNeuron = useStore(state => state.addNeuron)
+  const removeNeuron = useStore(state => state.removeNeuron)
 
   // TODO: use zustand reactive mechanism (subscribe)
   useEffect(() => {
     resetNetwork()
-  }, [inputs, problem, dataset, regDataset, noise, percTrainData, activation, regularization, regularizationRate, initZero, numHiddenLayers])
+  }, [inputs, problem, dataset, regDataset, noise, percTrainData, activation, regularization, regularizationRate, initZero, networkShape])
 
   useEffect(() => {
     let t
@@ -111,24 +113,48 @@ const Playground = () => {
         </Grid>
 
         <Grid item xs={5}>
-          <h4>{numHiddenLayers} Hidden layers</h4>
+          <h4>{networkShape.length} Hidden layers</h4>
           <ButtonGroup size='small' color='primary'>
             <IconButton
               aria-label='Add Layer'
               onClick={() => { addHiddenLayer() }}
-              disabled={numHiddenLayers >= 6}
+              disabled={networkShape.length >= 6}
             >
               <AddIcon />
             </IconButton>
             <IconButton
               aria-label='Remove Layer'
               onClick={() => { removeHiddenLayer() }}
-              disabled={numHiddenLayers <= 0}
+              disabled={networkShape.length <= 0}
             >
               <RemoveIcon />
             </IconButton>
           </ButtonGroup>
-          <div class="bracket"></div>
+          {networkShape.length > 0 && (
+            <Grid container spacing={2}>
+              {networkShape.map((neurons, layer) => (
+                <Grid item xs key={layer}>
+                  <h5>{neurons} Neurons</h5>
+                  <ButtonGroup size='small' color='primary'>
+                    <IconButton
+                      aria-label={`Add Neuron for Layer ${layer}`}
+                      onClick={() => { addNeuron(layer) }}
+                      disabled={neurons >= 8}
+                    >
+                      <AddIcon />
+                    </IconButton>
+                    <IconButton
+                      aria-label={`Remove Neuron for Layer ${layer}`}
+                      onClick={() => { removeNeuron(layer) }}
+                      disabled={neurons <= 1}
+                    >
+                      <RemoveIcon />
+                    </IconButton>
+                  </ButtonGroup>
+                </Grid>
+              ))}
+            </Grid>
+          )}
         </Grid>
 
         <Grid item xs={3}>
