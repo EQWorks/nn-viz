@@ -3,6 +3,10 @@ import { useEffect, useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Container from '@material-ui/core/Container'
 import Grid from '@material-ui/core/Grid'
+import ButtonGroup from '@material-ui/core/ButtonGroup'
+import IconButton from '@material-ui/core/IconButton'
+import AddIcon from '@material-ui/icons/Add'
+import RemoveIcon from '@material-ui/icons/Remove'
 
 import { useStore } from './state'
 import { INPUTS } from './utils'
@@ -56,10 +60,14 @@ const Playground = () => {
   const oneStep = useStore(state => state.oneStep)
   const resetNetwork = useStore(state => state.resetNetwork)
 
+  const numHiddenLayers = useStore(state => state.networkShape.length)
+  const addHiddenLayer = useStore(state => state.addHiddenLayer)
+  const removeHiddenLayer = useStore(state => state.removeHiddenLayer)
+
   // TODO: use zustand reactive mechanism (subscribe)
   useEffect(() => {
     resetNetwork()
-  }, [inputs, problem, dataset, regDataset, noise, percTrainData, activation, regularization, regularizationRate, initZero])
+  }, [inputs, problem, dataset, regDataset, noise, percTrainData, activation, regularization, regularizationRate, initZero, numHiddenLayers])
 
   useEffect(() => {
     let t
@@ -103,19 +111,23 @@ const Playground = () => {
         </Grid>
 
         <Grid item xs={5}>
-          <h4>
-            {/* <div class="ui-numHiddenLayers">
-              <button id="add-layers" class="mdl-button mdl-js-button mdl-button--icon">
-                <i class="material-icons">add</i>
-              </button>
-              <button id="remove-layers" class="mdl-button mdl-js-button mdl-button--icon">
-                <i class="material-icons">remove</i>
-              </button>
-            </div> */}
-            Hidden layers
-            <span id="num-layers"></span>
-            <span id="layers-label"></span>
-          </h4>
+          <h4>{numHiddenLayers} Hidden layers</h4>
+          <ButtonGroup size='small' color='primary'>
+            <IconButton
+              aria-label='Add Layer'
+              onClick={() => { addHiddenLayer() }}
+              disabled={numHiddenLayers >= 6}
+            >
+              <AddIcon />
+            </IconButton>
+            <IconButton
+              aria-label='Remove Layer'
+              onClick={() => { removeHiddenLayer() }}
+              disabled={numHiddenLayers <= 0}
+            >
+              <RemoveIcon />
+            </IconButton>
+          </ButtonGroup>
           <div class="bracket"></div>
         </Grid>
 

@@ -37,9 +37,23 @@ export const useStore = create((set) => ({
   initZero: false,
   hideText: false,
   collectStats: false,
-  numHiddenLayers: 1,
   hiddenLayerControls: [],
   networkShape: [4, 2],
+  // TODO: randomize neurons?
+  addHiddenLayer: (neurons = 2) => set((prev) => {
+    if (prev.networkShape.length >= 6) {
+      return
+    }
+    return { networkShape: [...prev.networkShape, neurons] }
+  }),
+  removeHiddenLayer: () => set((prev) => {
+    if (prev.networkShape.length <= 0) {
+      return
+    }
+    const networkShape = [...prev.networkShape]
+    networkShape.pop()
+    return { networkShape }
+  }),
   // feature inputs
   inputs: {
     x: true,
