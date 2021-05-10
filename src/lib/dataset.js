@@ -34,7 +34,7 @@ function normalRandom(mean = 0, variance = 1) {
 }
 
 function randUniform(a, b) {
-  return rng() * (b - a) + a;
+  return rng() * (b - a) + a
 }
 
 function dist(a, b) {
@@ -69,7 +69,7 @@ export function classifyTwoGaussData(numSamples, noise) {
     for (let i = 0; i < numSamples / 2; i++) {
       let x = normalRandom(cx, variance)
       let y = normalRandom(cy, variance)
-      points.push({x, y, label})
+      points.push({ x, y, label })
     }
   }
 
@@ -176,7 +176,7 @@ export function classifyCircleData(numSamples, noise) {
     const y = r * Math.cos(angle)
     const noiseX = randUniform(-radius, radius) * noise
     const noiseY = randUniform(-radius, radius) * noise
-    const label = getCircleLabel( {x: x + noiseX, y: y + noiseY }, { x: 0, y: 0 })
+    const label = getCircleLabel( { x: x + noiseX, y: y + noiseY }, { x: 0, y: 0 })
     points.push({ x, y, label })
   }
   return points

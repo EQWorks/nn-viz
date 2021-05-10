@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 
 import { makeStyles } from '@material-ui/core/styles'
 import Container from '@material-ui/core/Container'
@@ -95,7 +95,7 @@ const Playground = () => {
         <Grid item xs={2}>
           <h4>Features</h4>
           {Object.entries(INPUTS).map(([k, v]) => (
-            <div>
+            <div key={k}>
               <input
                 type='checkbox'
                 id={`input-${k}`}
@@ -106,7 +106,7 @@ const Playground = () => {
                   setInputs(name.split('-')[1], checked)
                 }}
               />
-              <label for={`input-${k}`}>{v.label}</label>
+              <label htmlFor={`input-${k}`}>{v.label}</label>
             </div>
           ))}
         </Grid>

@@ -1,3 +1,6 @@
+import React from 'react'
+import PropTypes from 'prop-types'
+
 import { makeStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
 import IconButton from '@material-ui/core/IconButton'
@@ -186,6 +189,17 @@ const Controls = ({ isPlaying, iter, togglePlaying, oneStep, resetNetwork }) => 
       </Grid>
     </Grid>
   )
+}
+Controls.propTypes = {
+  isPlaying: PropTypes.bool,
+  iter: PropTypes.number,
+  togglePlaying: PropTypes.func.isRequired,
+  oneStep: PropTypes.func.isRequired,
+  resetNetwork: PropTypes.func.isRequired,
+}
+Controls.defaultProps = {
+  isPlaying: false,
+  iter: 0,
 }
 
 export default Controls

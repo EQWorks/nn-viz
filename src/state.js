@@ -8,7 +8,7 @@ import {
   getLoss,
   generateData,
   reset,
- } from './utils'
+} from './utils'
 
 // TODO: handle hidden props
 // const HIDE_STATE_SUFFIX = '_hide'

@@ -74,7 +74,7 @@ export function getLoss(inputs, network, dataPoints) {
     const output = forwardProp(network, input)
     loss += Errors.SQUARE.error(output, dataPoint.label)
   }
-  return loss / dataPoints.length;
+  return loss / dataPoints.length
 }
 
 export function generateData({ problem, dataset, regDataset, noise, percTrainData }) {
@@ -104,8 +104,8 @@ export function reset({ inputs, trainData, testData, networkShape, problem, acti
   // d3.select("#num-layers").text(state.numHiddenLayers);
 
   // Make a simple network.
-  const numInputs = constructInput(inputs, 0, 0).length;
-  const shape = [numInputs].concat(networkShape).concat([1]);
+  const numInputs = constructInput(inputs, 0, 0).length
+  const shape = [numInputs].concat(networkShape).concat([1])
   const outputActivation = (problem === Problems.REGRESSION) ? Activations.LINEAR : Activations.TANH
   const network = buildNetwork(
     shape,

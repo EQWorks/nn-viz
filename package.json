@@ -21,13 +21,18 @@
     "test": "jest",
     "build": "babel src --out-dir dist --copy-files",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "lint": "eslint src/"
   },
   "dependencies": {
+    "@babel/eslint-parser": "^7.13.14",
     "@eqworks/lumen-ui": "^1.0.1",
     "@visx/shape": "^1.7.0",
     "d3-scale": "^3.2.3",
+    "eslint": "^7.26.0",
+    "eslint-plugin-react": "^7.23.2",
     "lodash.clonedeep": "^4.5.0",
+    "prop-types": "^15.7.2",
     "seedrandom": "^3.0.5",
     "zustand": "^3.3.3"
   },
