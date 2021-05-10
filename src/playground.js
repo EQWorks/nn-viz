@@ -1,12 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 
 import { makeStyles } from '@material-ui/core/styles'
 import Container from '@material-ui/core/Container'
 import Grid from '@material-ui/core/Grid'
 import ButtonGroup from '@material-ui/core/ButtonGroup'
 import IconButton from '@material-ui/core/IconButton'
+import Accordion from '@material-ui/core/Accordion'
+import AccordionSummary from '@material-ui/core/AccordionSummary'
+import AccordionDetails from '@material-ui/core/AccordionDetails'
 import AddIcon from '@material-ui/icons/Add'
 import RemoveIcon from '@material-ui/icons/Remove'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 
 import { useStore } from './state'
 import { INPUTS } from './utils'
@@ -19,6 +23,10 @@ const useStyles = makeStyles((theme) => ({
     minWidth: 120,
     margin: theme.spacing(1),
   },
+  accordionDetail: {
+    maxHeight: 200,
+    overflowY: 'scroll',
+  },
 }))
 
 const Playground = () => {
@@ -30,19 +38,10 @@ const Playground = () => {
   const regDataset = useStore(state => state.regDataset)
 
   const noise = useStore(state => state.noise)
-  const setNoise = useStore(state => state.setNoise)
-
   const percTrainData = useStore(state => state.percTrainData)
-  const setPercTrainData = useStore(state => state.setPercTrainData)
-
   const batchSize = useStore(state => state.batchSize)
-  const setBatchSize = useStore(state => state.setBatchSize)
-
   const activation = useStore(state => state.activation)
-
   const regularization = useStore(state => state.regularization)
-
-  const learningRate = useStore(state => state.learningRate)
   const regularizationRate = useStore(state => state.regularizationRate)
 
   const initZero = useStore(state => state.initZero)
@@ -54,7 +53,7 @@ const Playground = () => {
   const trainData = useStore(state => state.trainData)
   const testData = useStore(state => state.testData)
   const iter = useStore(state => state.iter)
-  const network = useStore(state => state.network)
+  // const network = useStore(state => state.network) // TODO: visualize this circular structure
   const lossTrain = useStore(state => state.lossTrain)
   const lossTest = useStore(state => state.lossTest)
   const oneStep = useStore(state => state.oneStep)
@@ -69,7 +68,7 @@ const Playground = () => {
   // TODO: use zustand reactive mechanism (subscribe)
   useEffect(() => {
     resetNetwork()
-  }, [inputs, problem, dataset, regDataset, noise, percTrainData, activation, regularization, regularizationRate, initZero, networkShape])
+  }, [inputs, problem, dataset, regDataset, noise, percTrainData, activation, regularization, regularizationRate, initZero, networkShape, batchSize])
 
   useEffect(() => {
     let t
@@ -171,7 +170,8 @@ const Playground = () => {
             <div id="linechart"></div>
           </div>
           <div id="heatmap"></div>
-          <div >
+          {/* seems to be viz only */}
+          {/* <div >
             <div>
               <div class="label">
                 Colors shows data, neuron and weight values.
@@ -191,27 +191,39 @@ const Playground = () => {
             </div>
             <br/>
             <div>
-              <label class="ui-showTestData mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="show-test-data">
-                <input type="checkbox" id="show-test-data" class="mdl-checkbox__input" checked />
-                <span class="mdl-checkbox__label label">Show test data</span>
-              </label>
               <label class="ui-discretize mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="discretize">
                 <input type="checkbox" id="discretize" class="mdl-checkbox__input" checked />
                 <span class="mdl-checkbox__label label">Discretize output</span>
               </label>
             </div>
-          </div>
+          </div> */}
         </Grid>
       </Grid>
       <div>
-        <div>
-          <span>Test Data: </span>
-          <pre>{JSON.stringify(testData, null, 2)}</pre>
-        </div>
-        <div>
-          <span>Training Data: </span>
-          <pre>{JSON.stringify(trainData, null, 2)}</pre>
-        </div>
+        <Accordion>
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls="panel-test-data-content"
+            id="panel-test-data-header"
+          >
+            Test data
+          </AccordionSummary>
+          <AccordionDetails className={classes.accordionDetail}>
+            <pre>{JSON.stringify(testData, null, 2)}</pre>
+          </AccordionDetails>
+        </Accordion>
+        <Accordion>
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls="panel-training-data-content"
+            id="panel-training-data-header"
+          >
+            Training data
+          </AccordionSummary>
+          <AccordionDetails className={classes.accordionDetail}>
+            <pre>{JSON.stringify(trainData, null, 2)}</pre>
+          </AccordionDetails>
+        </Accordion>
       </div>
     </Container>
   )

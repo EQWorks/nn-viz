@@ -17,7 +17,7 @@ const DataConfig = () => {
 
   return (
     <>
-      <Typography id='train-test-ratio' gutterBottom>Train:Test Ratio: {`${percTrainData}%`}</Typography>
+      <Typography id='train-test-ratio' gutterBottom>Train/Test Ratio: {`${percTrainData}%`}</Typography>
       <Slider
         value={percTrainData}
         onChange={(_, value) => setPercTrainData(value)}

@@ -17,6 +17,32 @@ import { Problems, Datasets, RegDatasets } from './utils'
 import { useStore } from './state'
 
 
+const LEARNING_RATES = [
+  0.00001,
+  0.0001,
+  0.001,
+  0.003,
+  0.01,
+  0.03,
+  0.1,
+  0.3,
+  1,
+  3,
+  10,
+]
+const REGULAR_RATES = [
+  0,
+  0.001,
+  0.003,
+  0.01,
+  0.03,
+  0.1,
+  0.3,
+  1,
+  3,
+  10,
+]
+
 const useStyles = makeStyles((theme) => ({
   controls: {
     minWidth: 120,
@@ -120,17 +146,7 @@ const Controls = ({ isPlaying, iter, togglePlaying, oneStep, resetNetwork }) => 
             onChange={({ target: { value } }) => setLearningRate(value)}
             label='Learning rate'
           >
-            <MenuItem value="0.00001">0.00001</MenuItem>
-            <MenuItem value="0.0001">0.0001</MenuItem>
-            <MenuItem value="0.001">0.001</MenuItem>
-            <MenuItem value="0.003">0.003</MenuItem>
-            <MenuItem value="0.01">0.01</MenuItem>
-            <MenuItem value="0.03">0.03</MenuItem>
-            <MenuItem value="0.1">0.1</MenuItem>
-            <MenuItem value="0.3">0.3</MenuItem>
-            <MenuItem value="1">1</MenuItem>
-            <MenuItem value="3">3</MenuItem>
-            <MenuItem value="10">10</MenuItem>
+            {LEARNING_RATES.map((v) => (<MenuItem key={v} value={v}>{v}</MenuItem>))}
           </Select>
         </FormControl>
         {/* regularization rate */}
@@ -142,16 +158,7 @@ const Controls = ({ isPlaying, iter, togglePlaying, oneStep, resetNetwork }) => 
             onChange={({ target: { value } }) => setRegularizationRate(value)}
             label='Regularization rate'
           >
-            <MenuItem value="0">0</MenuItem>
-            <MenuItem value="0.001">0.001</MenuItem>
-            <MenuItem value="0.003">0.003</MenuItem>
-            <MenuItem value="0.01">0.01</MenuItem>
-            <MenuItem value="0.03">0.03</MenuItem>
-            <MenuItem value="0.1">0.1</MenuItem>
-            <MenuItem value="0.3">0.3</MenuItem>
-            <MenuItem value="1">1</MenuItem>
-            <MenuItem value="3">3</MenuItem>
-            <MenuItem value="10">10</MenuItem>
+            {REGULAR_RATES.map((v) => (<MenuItem key={v} value={v}>{v}</MenuItem>))}
           </Select>
         </FormControl>
         {/* timeline controls */}
