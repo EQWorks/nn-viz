@@ -81,7 +81,7 @@ const Controls = ({ isPlaying, iter, togglePlaying, oneStep, resetNetwork }) => 
 
   return (
     <Grid container spacing={2}>
-      <Grid item xs={6}>
+      <Grid item sm={6} xs={12}>
         {/* activation */}
         <FormControl size='small' variant='outlined' className={classes.controls}>
           <InputLabel id="activations-label">Activation</InputLabel>
@@ -139,7 +139,7 @@ const Controls = ({ isPlaying, iter, togglePlaying, oneStep, resetNetwork }) => 
           </Select>
         </FormControl>
       </Grid>
-      <Grid item xs={6}>
+      <Grid item sm={6} xs={12}>
         {/* learning rate */}
         <FormControl size='small' variant='outlined' className={classes.controls}>
           <InputLabel id='learning-rate-label'>Learning rate</InputLabel>
