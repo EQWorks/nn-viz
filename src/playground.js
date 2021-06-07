@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { makeStyles } from '@material-ui/core/styles'
 import Container from '@material-ui/core/Container'
@@ -16,6 +16,7 @@ import { useStore } from './state'
 import { INPUTS } from './utils'
 import Controls from './controls'
 import DataConfig from './data-config'
+import Losses from './viz/losses'
 
 
 const useStyles = makeStyles((theme) => ({
@@ -28,6 +29,15 @@ const useStyles = makeStyles((theme) => ({
     overflowY: 'scroll',
   },
 }))
+
+const addLoss = ({ x, y }) => (prev) => {
+  const d = [...prev]
+  if (d.length >= 50) {
+    d.shift()
+  }
+  d.push({ x, y })
+  return d
+}
 
 const Playground = () => {
   const classes = useStyles()
@@ -82,17 +92,32 @@ const Playground = () => {
     return () => clearInterval(t)
   }, [isPlaying])
 
+  // TODO: integrate into zustant central store
+  const [lossTests, setLossTests] = useState([])
+  const [lossTrains, setLossTrains] = useState([])
+  useEffect(() => {
+    const testDatum = { x: iter, y: lossTest }
+    const trainDatum = { x: iter, y: lossTrain }
+    if (iter === 0) {
+      setLossTests([testDatum])
+      setLossTrains([trainDatum])
+    } else {
+      setLossTests(addLoss(testDatum))
+      setLossTrains(addLoss(trainDatum))
+    }
+  }, [iter, lossTest, lossTrain])
+
   return (
     <Container maxWidth='xl'>
       {/* controls */}
       <Controls isPlaying={isPlaying} iter={iter} togglePlaying={togglePlaying} oneStep={oneStep} resetNetwork={resetNetwork} />
       {/* visualization */}
       <Grid container spacing={2}>
-        <Grid item xs={2}>
+        <Grid item sm>
           <h4>Data configuration</h4>
           <DataConfig />
         </Grid>
-        <Grid item xs={2}>
+        <Grid item sm xs={6}>
           <h4>Features</h4>
           {Object.entries(INPUTS).map(([k, v]) => (
             <div key={k}>
@@ -111,7 +136,7 @@ const Playground = () => {
           ))}
         </Grid>
 
-        <Grid item xs={5}>
+        <Grid item sm={6}>
           <h4>{networkShape.length} Hidden layers</h4>
           <ButtonGroup size='small' color='primary'>
             <IconButton
@@ -155,50 +180,51 @@ const Playground = () => {
             </Grid>
           )}
         </Grid>
-
-        <Grid item xs={3}>
-          <h4>Output</h4>
-          <div>
-            <div>
-              <span>Test loss: </span>
-              <span>{lossTest}</span>
-            </div>
-            <div>
-              <span>Training loss: </span>
-              <span>{lossTrain}</span>
-            </div>
-            <div id="linechart"></div>
-          </div>
-          <div id="heatmap"></div>
-          {/* seems to be viz only */}
-          {/* <div >
-            <div>
-              <div class="label">
-                Colors shows data, neuron and weight values.
-              </div>
-              <svg width="150" height="30" id="colormap">
-                <defs>
-                  <linearGradient id="gradient" x1="0%" y1="100%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#f59322" stop-opacity="1"></stop>
-                    <stop offset="50%" stop-color="#e8eaeb" stop-opacity="1"></stop>
-                    <stop offset="100%" stop-color="#0877bd" stop-opacity="1"></stop>
-                  </linearGradient>
-                </defs>
-                <g class="core" transform="translate(3, 0)">
-                  <rect width="144" height="10"></rect>
-                </g>
-              </svg>
-            </div>
-            <br/>
-            <div>
-              <label class="ui-discretize mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="discretize">
-                <input type="checkbox" id="discretize" class="mdl-checkbox__input" checked />
-                <span class="mdl-checkbox__label label">Discretize output</span>
-              </label>
-            </div>
-          </div> */}
-        </Grid>
       </Grid>
+
+      <div>
+        <h4>Output</h4>
+        <div>
+          <div>
+            <span>Test loss: </span>
+            <span>{Number(lossTest).toFixed(3)}</span>
+          </div>
+          <div>
+            <span>Training loss: </span>
+            <span>{Number(lossTrain).toFixed(3)}</span>
+          </div>
+          <Losses Tests={lossTests} Trains={lossTrains} />
+        </div>
+        <div id="heatmap"></div>
+        {/* seems to be viz only */}
+        {/* <div >
+          <div>
+            <div class="label">
+              Colors shows data, neuron and weight values.
+            </div>
+            <svg width="150" height="30" id="colormap">
+              <defs>
+                <linearGradient id="gradient" x1="0%" y1="100%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#f59322" stop-opacity="1"></stop>
+                  <stop offset="50%" stop-color="#e8eaeb" stop-opacity="1"></stop>
+                  <stop offset="100%" stop-color="#0877bd" stop-opacity="1"></stop>
+                </linearGradient>
+              </defs>
+              <g class="core" transform="translate(3, 0)">
+                <rect width="144" height="10"></rect>
+              </g>
+            </svg>
+          </div>
+          <br/>
+          <div>
+            <label class="ui-discretize mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="discretize">
+              <input type="checkbox" id="discretize" class="mdl-checkbox__input" checked />
+              <span class="mdl-checkbox__label label">Discretize output</span>
+            </label>
+          </div>
+        </div> */}
+      </div>
+
       <div>
         <Accordion>
           <AccordionSummary
